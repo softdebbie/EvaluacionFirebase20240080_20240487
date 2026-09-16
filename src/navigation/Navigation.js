@@ -1,21 +1,66 @@
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
+import React from "react";
 
-import Home from '../screens/Home.js';
-import Add from '../screens/Add.js';
+import {
+  NavigationContainer,
+} from "@react-navigation/native";
 
-const Stack = createNativeStackNavigator();
+import {
+  createNativeStackNavigator,
+} from "@react-navigation/native-stack";
 
-const Navigation = () => {
-    return (
-        <NavigationContainer>
-            <Stack.Navigator>
-                <Stack.Screen name="Home" component={Home} options={{title:'Home'}} />
-                <Stack.Screen name="Add" component={Add} 
-                options={{presentation:'modal', title:'Agregar productos'}}/>
-            </Stack.Navigator>
-        </NavigationContainer>
-    );
+import Login from "../screens/Login";
+import Register from "../screens/Register";
+import Dashboard from "../screens/Dashboard";
+import EditProfile from "../screens/EditProfile";
+
+const Stack =
+  createNativeStackNavigator();
+
+export default function Navigation() {
+
+  return (
+
+    <NavigationContainer>
+
+      <Stack.Navigator
+        initialRouteName="Login"
+      >
+
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{
+            title: "Inicio de sesión",
+          }}
+        />
+
+        <Stack.Screen
+          name="Register"
+          component={Register}
+          options={{
+            title: "Registro",
+          }}
+        />
+
+        <Stack.Screen
+          name="Dashboard"
+          component={Dashboard}
+          options={{
+            title: "Mi perfil",
+            headerBackVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="EditProfile"
+          component={EditProfile}
+          options={{
+            title: "Editar perfil",
+          }}
+        />
+
+      </Stack.Navigator>
+
+    </NavigationContainer>
+  );
 }
-
-export default Navigation;
