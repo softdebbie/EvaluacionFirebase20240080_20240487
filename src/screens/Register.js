@@ -1,21 +1,10 @@
 import React, { useState } from "react";
 
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, Alert, ScrollView } from "react-native";
 
-import {
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
-import {
-  doc,
-  setDoc,
-} from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 
 import { auth, db } from "../config/firebase";
 
@@ -23,7 +12,6 @@ import CustomInput from "../components/CustomInput";
 import CustomButton from "../components/CustomButton";
 
 export default function Register({ navigation }) {
-
   const [nombreCompleto, setNombreCompleto] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,69 +20,51 @@ export default function Register({ navigation }) {
   const [imageUrl, setImageUrl] = useState("");
 
   const registrarUsuario = async () => {
-
-    if (
-      !nombreCompleto ||
-      !email ||
-      !password ||
-      !fechaNacimiento ||
-      !carnet ||
-      !imageUrl
-    ) {
+    if (!nombreCompleto || !email || !password || !fechaNacimiento || !carnet) {
       Alert.alert(
         "Campos obligatorios",
-        "Complete todos los campos."
+        "Complete todos los campos (la URL de imagen es opcional).",
       );
 
       return;
     }
 
     if (password.length < 6) {
-
       Alert.alert(
         "Contraseña inválida",
-        "La contraseña debe tener al menos 6 caracteres."
+        "La contraseña debe tener al menos 6 caracteres.",
       );
 
       return;
     }
 
     try {
-
-      const credential =
-        await createUserWithEmailAndPassword(
-          auth,
-          email.trim(),
-          password
-        );
+      const credential = await createUserWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password,
+      );
 
       const uid = credential.user.uid;
 
-      await setDoc(
-        doc(db, "usuarios", uid),
+      await setDoc(doc(db, "usuarios", uid), {
+        uid: uid,
+        nombreCompleto: nombreCompleto.trim(),
+        email: email.trim(),
+        fechaNacimiento: fechaNacimiento.trim(),
+        carnet: carnet.trim(),
+        imageUrl: imageUrl.trim(),
+        createdAt: new Date().toISOString(),
+      });
+
+      Alert.alert("Registro exitoso", "La cuenta fue creada correctamente.", [
         {
-          uid: uid,
-          nombreCompleto: nombreCompleto.trim(),
-          email: email.trim(),
-          fechaNacimiento: fechaNacimiento.trim(),
-          carnet: carnet.trim(),
-          imageUrl: imageUrl.trim(),
-          createdAt: new Date().toISOString(),
-        }
-      );
-
-      Alert.alert(
-        "Registro exitoso",
-        "La cuenta fue creada correctamente.",
-        [
-          {
-            text: "Aceptar",
-            onPress: () => navigation.replace("Dashboard"),
-          },
-        ]
-      );
-
+          text: "Aceptar",
+          onPress: () => navigation.replace("Dashboard"),
+        },
+      ]);
     } catch (error) {
+      console.log("ERROR REAL:", error);
 
       let mensaje = "No se pudo crear la cuenta.";
 
@@ -116,16 +86,10 @@ export default function Register({ navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-
       <View style={styles.content}>
+        <Text style={styles.title}>Crear cuenta</Text>
 
-        <Text style={styles.title}>
-          Crear cuenta
-        </Text>
-
-        <Text style={styles.subtitle}>
-          Complete sus datos
-        </Text>
+        <Text style={styles.subtitle}>Complete sus datos</Text>
 
         <CustomInput
           label="Nombre completo"
@@ -165,25 +129,21 @@ export default function Register({ navigation }) {
         />
 
         <CustomInput
-          label="URL de imagen"
+          label="URL de imagen (opcional)"
           value={imageUrl}
           onChangeText={setImageUrl}
           placeholder="https://..."
+          keyboardType="url"
         />
 
-        <CustomButton
-          title="Registrarme"
-          onPress={registrarUsuario}
-        />
+        <CustomButton title="Registrarme" onPress={registrarUsuario} />
 
         <CustomButton
           title="Ya tengo una cuenta"
           secondary
           onPress={() => navigation.goBack()}
         />
-
       </View>
-
     </ScrollView>
   );
 }

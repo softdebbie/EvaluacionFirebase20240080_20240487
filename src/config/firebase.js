@@ -1,33 +1,41 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID, test} from '@env';
+import * as firebaseAuth from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Your web app's Firebase configuration
+import {
+  API_KEY,
+  AUTH_DOMAIN,
+  PROJECT_ID,
+  STORAGE_BUCKET,
+  MESSAGING_SENDER_ID,
+  APP_ID,
+} from "@env";
+
+// Las credenciales NUNCA se escriben aquí: provienen del archivo .env
 const firebaseConfig = {
   apiKey: API_KEY,
   authDomain: AUTH_DOMAIN,
   projectId: PROJECT_ID,
   storageBucket: STORAGE_BUCKET,
   messagingSenderId: MESSAGING_SENDER_ID,
-  appId: APP_ID    
+  appId: APP_ID,
 };
 
-console.log("Valor de test: ", test);
-console.log("Valor de configuracion", firebaseConfig);
+// Evita re-inicializar la app en cada recarga de Metro
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-if (app) {
-  console.log('Firebase initialized successfully');
-} else {
-  console.log('Firebase initialization failed');
+// Auth con persistencia en AsyncStorage (mantiene la sesión al cerrar la app).
+// Se usa un try/catch porque initializeAuth falla si Auth ya fue inicializado.
+let auth;
+try {
+  auth = firebaseAuth.initializeAuth(app, {
+    persistence: firebaseAuth.getReactNativePersistence(AsyncStorage),
+  });
+} catch (error) {
+  auth = firebaseAuth.getAuth(app);
 }
 
-const database = getFirestore(app);
-if (database) {
-  console.log('Firestore initialized correctly');
-} else {
-  console.log('Firestore initialization failed');
-}
+const db = getFirestore(app);
 
-export { database };
+export { app, auth, db };

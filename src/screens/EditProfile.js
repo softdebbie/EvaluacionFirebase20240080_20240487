@@ -103,13 +103,12 @@ export default function EditProfile({
     if (
       !nombreCompleto ||
       !fechaNacimiento ||
-      !carnet ||
-      !imageUrl
+      !carnet
     ) {
 
       Alert.alert(
         "Campos obligatorios",
-        "Complete todos los campos."
+        "Complete todos los campos (la URL de imagen es opcional)."
       );
 
       return;
@@ -205,10 +204,11 @@ export default function EditProfile({
         />
 
         <CustomInput
-          label="URL de imagen"
+          label="URL de imagen (opcional)"
           value={imageUrl}
           onChangeText={setImageUrl}
           placeholder="https://..."
+          keyboardType="url"
         />
 
         <CustomButton
